@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ArticleService {
-  private apiUrl = 'http://localhost:3000';
-  // private apiUrl = 'https://databank.irmplservices.com:3000';
+  // private apiUrl = 'http://localhost:4000';
+  private apiUrl = 'https://databank.irmplservices.com:3800';
 
   constructor(private httpClient: HttpClient) {}
 
@@ -73,13 +73,15 @@ export class ArticleService {
     id: string,
     old_page_number: string,
     new_page_number: string,
-    page_name: string
+    page_name: string,
+    full_text: string
   ) {
     return this.httpClient.put<any>(`${this.apiUrl}/editPage`, {
       id,
       old_page_number,
       new_page_number,
       page_name,
+      full_text,
     });
   }
 
@@ -174,12 +176,34 @@ export class ArticleService {
     );
   }
 
+  //   replaceText(text: string) {
+  //     return this.httpClient.post(
+  //       `https://myimpact.in/QCImageupdate/textreplace.php`,
+  //       { text: text }  // Sending text as an object with key 'text'
+  //     );
+  // }
+
+  replaceText(text: string, textReplacePath: string) {
+    return this.httpClient.post(
+      'https://myimpact.in/QCImageupdate/textreplace.php',
+      { text, textReplacePath }, // No need to stringify manually
+      { headers: { 'Content-Type': 'application/json' }, responseType: 'json' }
+    );
+  }
+
+  replaceHTML(text: string, htmlReplacePath: string) {
+    return this.httpClient.post(
+      'https://myimpact.in/QCImageupdate/htmlreplace.php',
+      { text, htmlReplacePath }, // Send both text and path
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   getImageFromURL(imageUrl: string) {
     return this.httpClient.post(
       `${this.apiUrl}/getImageBase64`,
-      { imageUrl },  
-      { responseType: 'arraybuffer' } 
+      { imageUrl },
+      { responseType: 'arraybuffer' }
     );
   }
-  
 }

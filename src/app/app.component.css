@@ -342,3 +342,42 @@ span.highlight-blue {
   }
 }
 
+
+
+/* Hide the dashed grid lines */
+/* .cropper-dashed {
+  display: none !important;
+}
+
+/* Hide the semi-transparent crop box view */
+/* .cropper-view-box {
+  border: none !important;
+} */
+
+/* Optional: Hide the crosshair in the middle */
+/* .cropper-center {
+  display: none !important;
+}  */
+
+/* .cropper-line {
+  background-color: black !important;
+  width: 3px !important;
+}
+.cropper-point {
+  background-color: black !important;
+  width: 6px !important;
+  height: 6px !important;
+} */
+.custom-btn {
+  font-size: 10px; /* Small text */
+  padding: 3px 6px; /* Small padding */
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Space between icon and text */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.custom-btn svg {
+  width: 12px; /* Small icons */
+  height: 12px;
+}

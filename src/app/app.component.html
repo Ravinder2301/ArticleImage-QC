@@ -994,7 +994,7 @@
           <div *ngIf="isModalLoading" class="loader-overlay"></div>
 
         <!-- Crop Container -->
-        <div *ngIf="!isPreviewImage && !isLoading" class="crop-container d-flex justify-content-center align-items-center">
+        <div *ngIf="!isLoading" class="crop-container d-flex justify-content-center align-items-center">
           <img
             #imageToCrop
             id="imageElement"
@@ -1006,16 +1006,16 @@
         </div>
 
         <!-- Cropped Image Preview -->
-        <div *ngIf="isPreviewImage && !isLoading" class="cropped-preview mt-3 crop-container d-flex justify-content-center align-items-center">
-          <!-- <h5>{{ isPreviewMode ? '' : 'Cropped Image Preview:' }}</h5> -->
+        <!-- <div *ngIf="isPreviewImage && !isLoading" class="cropped-preview mt-3 crop-container d-flex justify-content-center align-items-center">
           <img
             #imageToCrop
             [src]="croppedImage"
             alt="Cropped Preview"
             class="img-thumbnail crop-image"
           />
-        </div>
+        </div> -->
       </div>
+      
       <div class="modal-footer">
 
         <button
@@ -1051,6 +1051,7 @@
           type="button"
           class="btn btn-secondary"
           (click)="triggerUploadConfirmation()"
+          *ngIf="!isCropEnabled"
           >
           Upload
         </button>
@@ -1062,11 +1063,15 @@
         >
           {{ isPreviewMode ? 'Preview' : 'Crop' }}
         </button>
+        <button *ngIf="isCropEnabled" type="button" class="btn btn-danger" (click)="cancelCropping()">
+          X
+        </button>
+      
         <button
           type="button"
           class="btn btn-success"
           (click)="triggerSaveConfirmation()"
-          [disabled]="!isSaveImage"
+          *ngIf="isSaveImage"
           data-bs-dismiss="modal"
         >
           Save

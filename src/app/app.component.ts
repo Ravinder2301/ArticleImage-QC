@@ -1,4 +1,10 @@
-import { Component, inject, ElementRef, ViewChild, NgZone } from '@angular/core';
+import {
+  Component,
+  inject,
+  ElementRef,
+  ViewChild,
+  NgZone,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ArticleService } from './service/article.service';
 import { CommonModule, NgIf } from '@angular/common';
@@ -134,7 +140,7 @@ export class AppComponent {
       PublicationTitle: '',
       Edition: '',
     };
-    // this.checkUser();
+    this.checkUser();
     this.selectedDate = this.formatDate(new Date());
     this.getPublications();
     this.searchTerms
@@ -241,6 +247,33 @@ export class AppComponent {
       console.error('Error occurred while getting publications:', error);
       this.isLoading = false; // Ensure that loading is set to false in case of error
     }
+  }
+
+  formatDateForMail(inputDate: string): string {
+    let date: Date;
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(inputDate)) {
+      // Format: YYYY-MM-DD (e.g., 2024-03-06)
+      date = new Date(inputDate);
+    } else {
+      // Format: DD-MMM-YYYY (e.g., 02-Feb-2025)
+      const parts = inputDate.split('-');
+      const day = parseInt(parts[0], 10);
+      const month = new Date(Date.parse(parts[1] + ' 1, 2000')).getMonth(); // Get month index
+      const year = parseInt(parts[2], 10);
+
+      date = new Date(year, month, day);
+    }
+
+    if (isNaN(date.getTime())) {
+      return 'Invalid date';
+    }
+
+    const day = date.getDate().toString().padStart(2, '0'); // Two-digit day
+    const month = date.toLocaleString('en-US', { month: 'short' }); // Short month name (e.g., Mar)
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
   }
 
   formatDate(dateString: Date): string {
@@ -465,7 +498,7 @@ export class AppComponent {
         .pipe(takeUntil(this.destroy$))
         .subscribe(
           (response: any) => {
-            console.log('API response:', response.data); // Check if the response is structured correctly
+            // console.log('API response:', response.data); // Check if the response is structured correctly
 
             if (response.data) {
               this.sectorsArray = response.data; // Assuming the array is under 'results' key
@@ -771,10 +804,10 @@ export class AppComponent {
         this.selectedJournalistId = null;
         this.selectedJournalistName = '';
       } else {
-        console.log('Journalist not found in the array');
+        // console.log('Journalist not found in the array');
       }
     } else {
-      console.log('Invalid journalist data');
+      // console.log('Invalid journalist data');
     }
   }
 
@@ -795,7 +828,7 @@ export class AppComponent {
   //     console.log(this.imageSrc);
   //     // this.isModalLoading=false;
   //     this.cdr.detectChanges();  // This forces the UI to update
-      
+
   //     this.isUploadedImage = false
   //   } else {
   //     console.error('No page number data available');
@@ -805,7 +838,7 @@ export class AppComponent {
 
   // viewArticle() {
   //   this.isModalLoading = true;
-    
+
   //   if (this.page_Number.length > 0) {
   //     const imagedirectory =
   //       this.article.imageDirectory || this.page_Number[0].imageDirectory;
@@ -813,7 +846,7 @@ export class AppComponent {
   //       this.article.Image_Name || this.page_Number[0].Image_Name;
   //     const baseUrl = 'https://myimpact.in/backup';
   //     const url = `${baseUrl}/${imagedirectory}/${Image_name}`;
-      
+
   //     // Simulate the image source update (example)
   //     this.zone.run(() => {
   //       this.imageSrc = "https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg";
@@ -823,14 +856,13 @@ export class AppComponent {
   //       this.cdr.detectChanges();  // Ensure the view is updated
 
   //     });
-      
+
   //   } else {
   //     console.error('No page number data available');
   //     this.isModalLoading = false;
   //     this.cdr.detectChanges();  // Ensure the view is updated if there's an error
   //   }
   // }
-
 
   viewPDF() {
     if (this.page_Number.length > 0) {
@@ -1240,7 +1272,7 @@ export class AppComponent {
       }
     }
 
-    // console.log('All operations completed');
+    console.log('All operations completed');
   }
 
   async save() {
@@ -1253,25 +1285,25 @@ export class AppComponent {
         this.UserID !== undefined &&
         this.UserID !== null
       ) {
-        try {
-          await this.updateTitle();
-          await this.updatePage();
-          await this.saveArticleJournalists();
-          this.closeModal();
-          console.log('User ID is valid. Save process completed successfully.');
-          this.getTotalArticles(this.selectedDate);
-          this.getFullArticle();
-          this.isLoading = false;
-        } catch (saveError) {
-          console.error('Error during save process:', saveError);
-          alert('An error occurred while saving the data. Please try again.');
-          this.closeModal();
-          this.isLoading = false;
-        }
+      try {
+        await this.updateTitle();
+        await this.updatePage();
+        await this.saveArticleJournalists();
+        this.closeModal();
+        console.log('User ID is valid. Save process completed successfully.');
+        this.getTotalArticles(this.selectedDate);
+        this.getFullArticle();
+        this.isLoading = false;
+      } catch (saveError) {
+        console.error('Error during save process:', saveError);
+        alert('An error occurred while saving the data. Please try again.');
+        this.closeModal();
+        this.isLoading = false;
+      }
       } else {
         this.closeModal();
-        // window.location.href =
-        //   'https://databank.irmplservices.com/databank/login.php';
+        window.location.href =
+          'https://databank.irmplservices.com/databank/login.php';
         console.log('User ID is invalid or empty.'); // Debugging message if UserID is invalid or empty
         this.isLoading = false;
       }
@@ -1320,8 +1352,8 @@ export class AppComponent {
         this.isLoading = false;
       } else {
         this.closeModal();
-        // window.location.href =
-        //   'https://databank.irmplservices.com/databank/login.php';
+        window.location.href =
+          'https://databank.irmplservices.com/databank/login.php';
         // console.log('User ID is invalid or empty.');
         this.isLoading = false;
       }
@@ -1365,7 +1397,7 @@ export class AppComponent {
         )
         .subscribe(
           (result) => {
-            // console.log(result);
+            console.log(result);
             resolve(result);
           },
           (error) => reject(error)
@@ -1374,17 +1406,20 @@ export class AppComponent {
   }
 
   updatePage(): Promise<any> {
+    // console.log('full_text : ', this.article.full_text);
+
     return new Promise((resolve, reject) => {
       this.articleService
         .editPage(
           this.selectedArticleId,
           this.article.Page_Number,
           this.newPageNumber,
-          this.newPageName
+          this.newPageName,
+          this.article.full_text
         )
         .subscribe(
           (result) => {
-            // console.log(result);
+            console.log(result);
             resolve(result);
           },
           (error) => reject(error)
@@ -1454,8 +1489,8 @@ export class AppComponent {
             console.log(this.UserID);
             this.closeModal();
             // reject('UserId is not available');  // Reject the promise if UserId is not found
-            // window.location.href =
-            //   'https://databank.irmplservices.com/databank/login.php';
+            window.location.href =
+              'https://databank.irmplservices.com/databank/login.php';
           }
         },
         (error) => {
@@ -1466,534 +1501,828 @@ export class AppComponent {
     });
   }
 
+  modalType: 'confirm' | 'success' = 'confirm';
+  confirmationMessage: string = '';
+  confirmationAction: () => void = () => {};
 
-
-modalType: 'confirm' | 'success' = 'confirm';
-confirmationMessage: string = '';
-confirmationAction: () => void = () => {};
-
-triggerSaveConfirmation() {
-  this.modalType = 'confirm'; // Set modal type
-  this.confirmationMessage = 'Are you sure you want to save the cropped image?';
-  this.confirmationAction = () => this.saveCroppedImageToServer();
-  this.showConfirmationModal();
-}
-
-triggerUploadConfirmation() {
-  this.modalType = 'confirm'; // Set modal type
-  this.confirmationMessage = 'Are you sure you want to upload a new image?';
-  this.confirmationAction = () => this.triggerFileInput();
-  this.showConfirmationModal();
-}
-
-showSuccessModal() {
-  this.modalType = 'success'; // Set modal type
-  this.confirmationMessage = 'Image saved successfully!';
-  this.showConfirmationModal();
-}
-
-showConfirmationModal() {
-  const modalElement = document.getElementById('confirmModal');
-  const modalInstance = new bootstrap.Modal(modalElement);
-  modalInstance.show();
-}
-
-
-confirmAction() {
-  if (this.modalType === 'confirm' && this.confirmationAction) {
-    this.confirmationAction();
+  triggerSaveConfirmation() {
+    this.modalType = 'confirm'; // Set modal type
+    this.confirmationMessage =
+      'Are you sure you want to save the cropped image?';
+    this.confirmationAction = () => this.saveCroppedImageToServer();
+    this.showConfirmationModal();
   }
-  // this.resetConfirmationState();
 
-}
-
-cancelConfirmation() {
-  this.confirmationMessage = '';
-  this.confirmationAction = () => {};
-
-  // Call the existing reset functions to clean up the state
-  this.resetCropper(); // Reset the cropper-related state
-  this.resetSavedImage(); // Reset the saved image state
-
-  // Optional: Reset other state variables if needed
-  this.isModalLoading = false;
-  this.isPreviewImage = false;
-  this.isSaveImage = false;
-}
-
-
-triggerFileInput() {
-  try {
-    const fileInput = document.getElementById('imageUpload') as HTMLInputElement;
-    fileInput.value = ''; // Clear previous file selection
-    fileInput.click(); // Open file picker
-  } catch (error) {
-    console.error('Error triggering file input:', error);
-    alert('An error occurred while triggering the file input.');
+  triggerUploadConfirmation() {
+    this.modalType = 'confirm'; // Set modal type
+    this.confirmationMessage = 'Are you sure you want to upload a new image?';
+    this.confirmationAction = () => this.triggerFileInput();
+    this.showConfirmationModal();
   }
-}
 
+  showSuccessModal() {
+    this.modalType = 'success'; // Set modal type
+    this.confirmationMessage = 'Image saved successfully!';
+    this.showConfirmationModal();
+  }
 
-// confirmImageChange() {
-//   this.isModalLoading = true;
-//   try {
-//     const fileInput = document.getElementById('imageUpload') as HTMLInputElement;
-//     fileInput.value = ''; // Clear previous file
-//     fileInput.click();
-//   } catch (error) {
-//     console.error('Error triggering file input:', error);
-//     alert('An error occurred while triggering the file input.');
-//   } finally {
-//     this.isModalLoading = false;
-//   }
-// }
+  showConfirmationModal() {
+    const modalElement = document.getElementById('confirmModal');
+    const modalInstance = new bootstrap.Modal(modalElement);
+    modalInstance.show();
+  }
 
-
-
-
-onFileSelected(event: Event) {
-  this.isModalLoading = true;  // Show loading
-  try {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      this.isPreviewMode = false;
-      this.isUploadedImage = true; 
-      
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imageSrc = e.target.result;
-        // console.log(this.imageSrc);
-        this.isUploadedImage = true;
-        this.imageKey = Date.now().toString(); // Force re-rendering
-        this.isSaveImage = true; 
-        // this.resetCropper(true);
-
-        // ✅ Hide loading only after image is set
-        this.isModalLoading = false;
-      };
-
-      reader.onerror = () => {
-        console.error("Error reading file.");
-        alert("An error occurred while reading the file.");
-        this.isModalLoading = false;
-      };
-
-      reader.readAsDataURL(this.selectedFile);  // Start reading the file
-
-    } else {
-      console.warn("No file selected.");
-      alert("No file selected.");
-      this.isModalLoading = false;
+  confirmAction() {
+    if (this.modalType === 'confirm' && this.confirmationAction) {
+      this.confirmationAction();
     }
-  } catch (error) {
-    console.error("Error reading file:", error);
-    alert("An error occurred while reading the file.");
-    this.isModalLoading = false;
+    // this.resetConfirmationState();
   }
-}
 
-async loadImageFromUrl(imageUrl: string): Promise<void> {
-  console.log(`Requesting image: ${imageUrl}`);
-  this.isModalLoading = true;
-  try {
-    const response = await this.articleService.getImageFromURL(imageUrl).toPromise();
-    if (!response) throw new Error("Invalid response from server.");
+  cancelConfirmation() {
+    this.confirmationMessage = '';
+    this.confirmationAction = () => {};
 
-    const blob = new Blob([response], { type: 'image/jpeg' });
-    const generatedImageUrl = URL.createObjectURL(blob);
+    // Call the existing reset functions to clean up the state
+    this.resetCropper(true); // Reset the cropper-related state
+    this.resetSavedImage(); // Reset the saved image state
 
-    const imageElement = document.getElementById('imageElement') as HTMLImageElement;
-    imageElement.src = generatedImageUrl;
-
-    return new Promise<void>((resolve, reject) => {
-      imageElement.onload = () => {
-        this.isModalLoading = false;
-        resolve();
-      };
-      imageElement.onerror = (error) => {
-        console.error("Error loading image:", error);
-        this.isModalLoading = false;
-        reject(error);
-      };
-    });
-  } catch (error) {
-    console.error("Error fetching the image:", error);
+    // Optional: Reset other state variables if needed
     this.isModalLoading = false;
-    alert("Failed to load image.");
+    this.isPreviewImage = false;
+    this.isSaveImage = false;
   }
-}
 
-// async enableCropping() {
-//   this.isModalLoading = true;
-//   try {
-//     if (!this.isUploadedImage) {
-//       await this.loadImageFromUrl(this.imageSrc);  // Wait for the image to load before proceeding
-//       this.isUploadedImage = true;
-//       this.isSaveImage=false;
-//       if (!this.isCropEnabled) {
-//         const imageElement = this.imageElement.nativeElement;
-//         // console.log('Initializing cropper for the first time');
-//         this.initializeCropper(imageElement);
-//       }
-//     } else {
-//       if (!this.isCropEnabled) {
-//         const imageElement = this.imageElement.nativeElement;
-//         console.log('Initializing cropper for the first time');
-//         this.isSaveImage=false;
-//         this.initializeCropper(imageElement);
-//       } else if (this.cropper) {
-//         if (this.isPreviewMode) {
-//           console.log('Reinitializing cropper for re-cropping');
-//           this.reinitializeCropper(this.cropper);
-//         } else {
-//           console.log('Generating cropped preview');
-//           this.generatePreview();
-//           this.cropper.destroy();
-//           this.cropper = null;
-//           this.isCropEnabled = false;
-//           this.isPreviewMode = true;
-//           this.isPreviewImage = true;
-//         }
-//       }
-//     }
-//   } catch (error) {
-//     console.error("Error in loading image", error);
-//     this.isModalLoading = false;
-//     alert("An error occurred while enabling cropping.");
-//     return;  // Early exit if there was an error loading the image
-//   } finally {
-//     this.isModalLoading = false;
-//   }
-// }
-
-async enableCropping() {
-  this.isModalLoading = true; // Show loader immediately when crop button is clicked
-  setTimeout(async () => { // Ensures UI updates before processing starts
+  triggerFileInput() {
     try {
-      if (!this.isUploadedImage) {
-        await this.loadImageFromUrl(this.imageSrc);
-        this.isUploadedImage = true;
-        this.isSaveImage = false;
+      const fileInput = document.getElementById(
+        'imageUpload'
+      ) as HTMLInputElement;
+      fileInput.value = ''; // Clear previous file selection
+      fileInput.click(); // Open file picker
+      // console.log("file open from file input");
+      
+    } catch (error) {
+      console.error('Error triggering file input:', error);
+      alert('An error occurred while triggering the file input.');
+    }
+  }
 
-        if (!this.isCropEnabled) {
-          const imageElement = this.imageElement.nativeElement;
-          this.initializeCropper(imageElement);
-        }
+
+  onFileSelected(event: Event) {
+    this.isModalLoading = true; // Show loading
+    try {
+      const input = event.target as HTMLInputElement;
+      if (input.files && input.files.length > 0) {
+        this.selectedFile = input.files[0];
+        this.isPreviewMode = false;
+        this.isUploadedImage = true;
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.imageSrc = e.target.result;
+          // console.log("imageSrc: " + this.imageSrc);
+          // console.log("cropped image: " + this.croppedImage);
+          this.isUploadedImage = true;
+          this.imageKey = Date.now().toString(); // Force re-rendering
+          this.isSaveImage = true;
+          // this.resetCropper(true);
+
+          // ✅ Hide loading only after image is set
+          this.isModalLoading = false;
+        };
+
+        reader.onerror = () => {
+          console.error('Error reading file.');
+          alert('An error occurred while reading the file.');
+          this.isModalLoading = false;
+        };
+
+        reader.readAsDataURL(this.selectedFile); // Start reading the file
       } else {
-        if (!this.isCropEnabled) {
-          const imageElement = this.imageElement.nativeElement;
-          console.log("Initializing cropper for the first time");
-          this.isSaveImage = false;
-          this.initializeCropper(imageElement);
-        } else if (this.cropper) {
-          if (this.isPreviewMode) {
-            console.log("Reinitializing cropper for re-cropping");
-            this.reinitializeCropper(this.cropper);
-          } else {
-            console.log("Generating cropped preview");
-            this.generatePreview();
-            this.cropper.destroy();
-            this.cropper = null;
-            this.isCropEnabled = false;
-            this.isPreviewMode = true;
-            this.isPreviewImage = true;
-          }
-        }
+        console.warn('No file selected.');
+        alert('No file selected.');
+        this.isModalLoading = false;
       }
     } catch (error) {
-      console.error("Error in loading image", error);
-      alert("An error occurred while enabling cropping.");
+      console.error('Error reading file:', error);
+      alert('An error occurred while reading the file.');
+      this.isModalLoading = false;
+    }
+  }
+
+  async loadImageFromUrl(imageUrl: string): Promise<boolean> {
+    // console.log(`Requesting image: ${imageUrl}`);
+    this.isModalLoading = true;
+    try {
+      const response = await this.articleService
+        .getImageFromURL(imageUrl).pipe(takeUntil(this.destroy$)).toPromise();
+      // console.log("Fetched Response:", response);
+
+      if (!response) throw new Error('Invalid response from server.');
+
+      const blob = new Blob([response], { type: 'image/jpeg' });
+      const generatedImageUrl = URL.createObjectURL(blob);
+
+      const imageElement = document.getElementById(
+        'imageElement'
+      ) as HTMLImageElement;
+
+      if (!imageElement) {
+        console.warn("Image element no longer exists.");
+        return false; // Exit if modal is closed before loading
+      }
+  
+      imageElement.src = generatedImageUrl;
+// console.log("imageElement: " + imageElement);
+
+      return new Promise<boolean>((resolve, reject) => {
+        imageElement.onload = () => {
+          // if (!imageElement) {
+          //   console.warn("Image element removed before loading completed.");
+          //   return;
+          // }  
+          this.isModalLoading = false;
+          resolve(true);
+        };
+        imageElement.onerror = (error) => {
+          console.error('Error when loading image:', error);
+          this.isModalLoading = false;
+          alert('Error when loading image:');
+          reject(false);
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching the image:', error);
+      this.isModalLoading = false;
+      alert('Failed to load image.');
+      return false
+    }
+  }
+
+  async enableCropping() {
+    this.isModalLoading = true; // Show loader immediately when crop button is clicked
+    setTimeout(async () => {
+      // Ensures UI updates before processing starts
+      try {
+        if (!this.isUploadedImage) {
+          const success = await this.loadImageFromUrl(this.imageSrc);
+          if (!success) {
+            alert("Image failed to load.");
+            this.isModalLoading = false;
+            return; // Stop execution if image fails to load
+          }
+          this.isUploadedImage = true;
+          this.isSaveImage = false;
+
+          if (!this.isCropEnabled) {
+            const imageElement = this.imageElement.nativeElement;
+            this.initializeCropper(imageElement);
+          }
+        } else {
+          if (!this.isCropEnabled) {
+            const imageElement = this.imageElement.nativeElement;
+            console.log('Initializing cropper for the first time');
+            this.isSaveImage = false;
+            this.initializeCropper(imageElement);
+          } else if (this.cropper) {
+            if (this.isPreviewMode) {
+              console.log('Reinitializing cropper for re-cropping');
+              this.reinitializeCropper(this.cropper);
+            } else {
+              console.log('Generating cropped preview');
+              this.generatePreview();
+              this.cropper.destroy();
+              this.cropper = null;
+              this.isCropEnabled = false;
+              this.isPreviewMode = true;
+              this.isPreviewImage = true;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in loading image', error);
+        alert('An error occurred while enabling cropping.');
+      } finally {
+        this.isModalLoading = false; // Hide loader once cropping is enabled
+      }
+    }, 50); // Delay ensures loader is shown before heavy processing starts
+  }
+
+  initializeCropper(imageElement: HTMLImageElement) {
+    console.log('Initializing cropper for the first time on url');
+    try {
+      this.cropper = new Cropper(imageElement, {
+        viewMode: 2,
+        zoomable: true,
+        scalable: true,
+        movable: true,
+        dragMode: 'crop',  // Allows manual selection
+        autoCrop: false,   // Prevents auto-cropping
+        autoCropArea: 0,   // Ensures manual crop selection
+        cropBoxMovable: true,  // Allow moving crop box
+        cropBoxResizable: true // Allow resizing crop box
+      });
+  
+      this.isCropEnabled = true;
+      this.isPreviewMode = false;
+    } catch (error) {
+      console.error('Error initializing cropper:', error);
+      alert('An error occurred while initializing the cropper.');
     } finally {
-      this.isModalLoading = false; // Hide loader once cropping is enabled
+      this.isModalLoading = false;
     }
-  }, 50); // Delay ensures loader is shown before heavy processing starts
-}
-
-
-initializeCropper(imageElement: HTMLImageElement) {
-  console.log('Initializing cropper for the first time on url');
-  try {
-    this.cropper = new Cropper(imageElement, {
-      viewMode: 2,
-      zoomable: true,
-      scalable: true,
-      movable: true,
-      dragMode: 'move',
-      autoCropArea: 1, // Ensures the crop box takes the full image
-      // ready: () => {
-      //   // Ensure crop box takes full image width & height
-      //   const imageData = this.cropper.getImageData();
-      //   this.cropper.setCropBoxData({
-      //     left: 0,
-      //     top: 0,
-      //     width: imageData.naturalWidth,
-      //     height: imageData.naturalHeight,
-      //   });
-      // }
-    });
-
-    this.isCropEnabled = true;
-    this.isPreviewMode = false;
-  } catch (error) {
-    console.error("Error initializing cropper:", error);
-    alert("An error occurred while initializing the cropper.");
-  } finally {
-    this.isModalLoading = false;
   }
-}
 
-reinitializeCropper(crpper: any) {
-  try {
-    crpper.destroy();
-    const imageElement = this.imageElement.nativeElement;
-    this.cropper = new Cropper(imageElement, {
-      viewMode: 2,
-    });
-    this.isPreviewMode = false;
-  } catch (error) {
-    console.error("Error reinitializing cropper:", error);
-    alert("An error occurred while reinitializing the cropper.");
-  } finally {
-    this.isModalLoading = false;
-  }
-}
-
-generatePreview() {
-  this.isModalLoading = true;
-  console.log('generatePreview');
-  try {
-    if (this.cropper) {
-      const canvas = this.cropper.getCroppedCanvas();
-      this.croppedImage = canvas.toDataURL('image/jpeg');
-      this.isSaveImage= true;
+  reinitializeCropper(crpper: any) {
+    try {
+      crpper.destroy();
+      const imageElement = this.imageElement.nativeElement;
+      this.cropper = new Cropper(imageElement, {
+        viewMode: 2,
+      });
+      this.isPreviewMode = false;
+    } catch (error) {
+      console.error('Error reinitializing cropper:', error);
+      alert('An error occurred while reinitializing the cropper.');
+    } finally {
+      this.isModalLoading = false;
     }
-  } catch (error) {
-    console.error("Error generating preview:", error);
-    alert("An error occurred while generating the preview.");
-  } finally {
-    this.isModalLoading = false;
   }
-}
 
-async saveCroppedImageToServer() {
-  this.isLoading = true;
-  try {
-    let blob: Blob;
-    let file: File;
-
-    if (this.croppedImage) {
-      // Use cropped image
-      blob = this.dataURLToBlob(this.croppedImage);
-    } else {
-      // Use original image if no cropping was done
-      blob = this.dataURLToBlob(this.imageSrc);
+  generatePreview() {
+    this.isModalLoading = true;
+    // console.log('generatePreview');
+    try {
+      if (this.cropper) {
+        const canvas = this.cropper.getCroppedCanvas();
+        this.imageSrc = canvas.toDataURL('image/jpeg');
+        this.isSaveImage = true;
+      }
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      alert('An error occurred while generating the preview.');
+    } finally {
+      this.isModalLoading = false;
     }
+  }
 
-    // if (this.croppedImage) {
-    //   const blob = this.dataURLToBlob(this.croppedImage);
-    //   const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+  // async saveCroppedImageToServer() {
+  //   this.isLoading = true;
+  //   try {
+  //     let blob: Blob;
+  //     let file: File;
 
-    // } else {
-    //   const blob = this.dataURLToBlob(this.imageSrc);
-       file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+  //     if (this.croppedImage) {
+  //       // Use cropped image
+  //       blob = this.dataURLToBlob(this.croppedImage);
+  //     } else {
+  //       // Use original image if no cropping was done
+  //       blob = this.dataURLToBlob(this.imageSrc);
+  //     }
 
-    // }
+  //     // if (this.croppedImage) {
+  //     //   const blob = this.dataURLToBlob(this.croppedImage);
+  //     //   const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
 
+  //     // } else {
+  //     //   const blob = this.dataURLToBlob(this.imageSrc);
+  //        file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+
+  //     // }
+
+  //       const formData = new FormData();
+  //       formData.append("image", file);
+
+  //       const response = await this.articleService.uploadArticleImage(formData).toPromise();
+  //       console.log("Image replaced successfully on the server.", response);
+
+  //       this.ngZone.run(() => {
+  //         this.imageSrc = `${this.imageSrc}?${Date.now()}`;
+  //         this.resetSavedImage(true);
+  //         // alert("Image saved successfully!");
+  //         this.viewArticle();
+  //       });
+
+  //       const text = await this.articleService.getOcrText("https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg").toPromise();
+  //       console.log("Text extracted successfully.", text);
+
+  //       const result = await this.articleService.replaceText(text.extracted_text).toPromise();
+  //       console.log(result);
+
+  //       this.showSuccessModal();
+
+  //       // this.imageSrc = `${this.imageSrc}?${Date.now()}`;
+  //       // // this.imageSrc = { ...this.imageSrc };
+
+  //       // this.resetSavedImage(true);
+
+  //       // alert("Image saved successfully!");
+  //       // this.viewArticle();
+  //     // } else {
+  //     //   alert("Please crop the image before saving.");
+  //     // }
+  //   } catch (error) {
+  //     console.error("Error replacing the image on the server:", error);
+  //     alert("Failed to replace the image.");
+  //   } finally {
+  //     this.isLoading = false;
+  //   }
+  // }
+
+  // async saveCroppedImageToServer() {
+  //   this.isLoading = true;
+  //   try {
+  //     let blob: Blob;
+  //     let file: File;
+
+  //     // Use cropped image if available, otherwise use original image
+  //     if (this.croppedImage) {
+  //       blob = this.dataURLToBlob(this.croppedImage);
+  //     } else {
+  //       blob = this.dataURLToBlob(this.imageSrc);
+  //     }
+
+  //     file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+  //     const imageReplacePath = "/backup/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg"
+  //     const textReplacePath = "/backup/irisprocess/testingimageupdate/text/123-20250125-21-Economy_8.txt"
+  //     const htmlReplacePath = "/backup/irisprocess/testingimageupdate/html/123-20250125-21-Economy_8.html"
+
+  //     // Prepare form data to upload the image
+  //     const formData = new FormData();
+  //     formData.append('imagePath', imageReplacePath);
+  //     formData.append('image', file);
+
+  //     // Upload the image
+  //     const response = await this.articleService
+  //       .uploadArticleImage(formData)
+  //       .toPromise();
+  //     console.log('Image replaced successfully on the server.', response);
+
+  //     this.ngZone.run(() => {
+  //       // Update the image source to reflect the uploaded image
+  //       this.imageSrc = `${this.imageSrc}?${Date.now()}`;
+  //       this.resetSavedImage(true);
+  //       // Optionally reload the article or refresh UI
+  //       this.viewArticle();
+  //     });
+
+  //     // Extract text using OCR after the image upload
+  //     const text = await this.articleService
+  //       .getOcrText(
+  //         'https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg'
+  //       )
+  //       .toPromise();
+  //     console.log('Text extracted successfully.', text);
+
+  //     // Now replace the text on the server
+  //     // this.articleService.replaceText(text.extracted_text).subscribe(
+  //     //   (response) => {
+  //     //     console.log('Text replaced successfully.', response);
+  //     //   },
+  //     //   (error) => {
+  //     //     console.error('Error replacing text:', error);
+  //     //     console.log('Raw response:', error.error); // Log raw response
+  //     //   }
+  //     // );
+  //     const textResponse = this.articleService.replaceText(text.extracted_text, textReplacePath).toPromise();
+  //     console.log('Text replaced successfully.', textResponse);
+
+  //     // Now replace the HTML on the server
+  //     const htmlResponse =  this.articleService.replaceHTML(text.extracted_text, htmlReplacePath).toPromise();
+  //     console.log('HTML replaced successfully.', htmlResponse);
+      
+
+  //     this.highlightedText = text.extracted_text
+  //       .replace(/(\w+)-\s*\n\s*(\w+)/g, '$1$2') // Merge hyphenated words
+  //       .replace(/(?<!\n)\n(?!\n)/g, ' ') // Keep single newlines as single newline
+  //       .replace(/\n\n/g, '\n') // Replace double newlines with single newline
+  //       // .replace(/'/g, "\\'"); // Escape single quotes
+  //     // console.log(this.highlightedText);
+
+  //     this.article.full_text = this.highlightedText;
+  //     this.highlightExistingKeywords(this.article.full_text);
+  //     // this.highlightedText = text.extracted_text
+  //     // Show success modal or alert
+  //     this.showSuccessModal();
+  //   } catch (error) {
+  //     console.error('Error replacing the image on the server:', error);
+  //     alert('Failed to replace the image.');
+  //   } finally {
+  //     this.isLoading = false;
+  //   }
+  // }
+
+  async saveCroppedImageToServer() {
+    this.isLoading = true;
+    try {
+      let blob: Blob;
+      let file: File;
+  
+      // Use cropped image if available, otherwise use original image
+      if (this.croppedImage) {
+        blob = this.dataURLToBlob(this.croppedImage);
+      } else {
+        blob = this.dataURLToBlob(this.imageSrc);
+      }
+  
+      file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+  
+      const imageReplacePath = "/backup/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg";
+      const textReplacePath = "/backup/irisprocess/testingimageupdate/text/123-20250125-21-Economy_8.txt";
+      const htmlReplacePath = "/backup/irisprocess/testingimageupdate/html/123-20250125-21-Economy_8.html";
+  
+      // Prepare form data to upload the image
       const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await this.articleService.uploadArticleImage(formData).toPromise();
-      console.log("Image replaced successfully on the server.", response);
-
+      formData.append('imagePath', imageReplacePath);
+      formData.append('image', file);
+  
+      // Upload the image
+      let response;
+      try {
+        response = await this.articleService.uploadArticleImage(formData).toPromise();
+        // console.log('✅ Image replaced successfully on the server.', response);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to replace the image on the server.');
+        return; // Stop execution if image upload fails
+      }
+  
       this.ngZone.run(() => {
         this.imageSrc = `${this.imageSrc}?${Date.now()}`;
         this.resetSavedImage(true);
-        // alert("Image saved successfully!");
         this.viewArticle();
       });
   
-      this.showSuccessModal();
-
-      // this.imageSrc = `${this.imageSrc}?${Date.now()}`;
-      // // this.imageSrc = { ...this.imageSrc };
-
-      // this.resetSavedImage(true);
-
-      // alert("Image saved successfully!");
-      // this.viewArticle();
-    // } else {
-    //   alert("Please crop the image before saving.");
-    // }
-  } catch (error) {
-    console.error("Error replacing the image on the server:", error);
-    alert("Failed to replace the image.");
-  } finally {
-    this.isLoading = false;
-  }
-}
-
-resetSavedImage(isSaved: boolean = false) {
-  console.log('resetSavedImage');
-  try {
-    this.isPreviewImage = false;
-
-    if (this.cropper) {
-      this.cropper.destroy();
-      this.cropper = null;
-    }
-
-    this.isCropEnabled = false;
-    this.croppedImage = '';
-    this.isPreviewMode = false;
-  } catch (error) {
-    console.error("Error resetting saved image:", error);
-  }
-}
-
-dataURLToBlob(dataURL: string): Blob {
-  const byteString = atob(dataURL.split(',')[1]);
-  const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-  const buffer = new ArrayBuffer(byteString.length);
-  const dataView = new Uint8Array(buffer);
-  for (let i = 0; i < byteString.length; i++) {
-    dataView[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([buffer], { type: mimeString });
-}
-
-resetCropper(isSaved: boolean = false) {
-  console.log('resetCropper');
-  try {
-    this.isPreviewImage = false;
-
-    if (this.cropper) {
-      this.cropper.destroy();
-      this.cropper = null;
-    }
-
-    this.isCropEnabled = false;
-    this.croppedImage = '';
-    this.isPreviewMode = false;
-    this.isSaveImage= false
-  } catch (error) {
-    console.error("Error resetting cropper:", error);
-  } finally {
-    this.isLoading = false;
-    this.isModalLoading = false;
-  }
-}
-
-zoomIn() {
-  this.isModalLoading = true;
-  try {
-    if (this.cropper) {
-      this.cropper.zoom(0.1);
-      this.isZoomEnabled = true;
-    }
-  } catch (error) {
-    console.error("Error zooming in:", error);
-    alert("An error occurred while zooming in.");
-  } finally {
-    this.isModalLoading = false;
-  }
-}
-
-zoomOut() {
-  this.isModalLoading = true;
-  try {
-    if (this.cropper) {
-      this.cropper.zoom(-0.1);
-      const data = this.cropper.getData();
-      if (data.scaleX <= 1 && data.scaleY <= 1) {
-        this.isZoomEnabled = false;
+      // Extract text using OCR after the image upload
+      let text;
+      try {
+        text = await this.articleService.getOcrText("https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg").toPromise();
+        // console.log('✅ Text extracted successfully.', text);
+      } catch (error) {
+        console.error('Error extracting text with OCR:', error);
+        alert('Failed to extract text from the image.');
+        return; // Stop execution if OCR fails
       }
+  
+      // Replace text on the server
+      try {
+        const textResponse = await this.articleService.replaceText(text.extracted_text, textReplacePath).toPromise();
+        // console.log('✅ Text replaced successfully.', textResponse);
+      } catch (error) {
+        console.error('Error replacing text:', error);
+        alert('Failed to replace text on the server.');
+        return; // Stop execution if text replacement fails
+      }
+  
+      // Replace HTML on the server
+      try {
+        const htmlResponse = await this.articleService.replaceHTML(text.extracted_text, htmlReplacePath).toPromise();
+        // console.log('HTML replaced successfully.', htmlResponse);
+      } catch (error) {
+        console.error('Error replacing HTML:', error);
+        alert('Failed to replace HTML on the server.');
+        return; // Stop execution if HTML replacement fails
+      }
+  
+      // Process and display extracted text
+      this.highlightedText = text.extracted_text
+        .replace(/(\w+)-\s*\n\s*(\w+)/g, '$1$2') // Merge hyphenated words
+        .replace(/(?<!\n)\n(?!\n)/g, ' ') // Keep single newlines as single newline
+        .replace(/\n\n/g, '\n'); // Replace double newlines with single newline
+  
+      this.article.full_text = this.highlightedText;
+      this.highlightExistingKeywords(this.article.full_text);
+  
+      // Show success modal
+      this.showSuccessModal();
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred while processing the image.');
+    } finally {
+      this.isLoading = false; // Stop loading indicator in any case
     }
-  } catch (error) {
-    console.error("Error zooming out:", error);
-    alert("An error occurred while zooming out.");
-  } finally {
-    this.isModalLoading = false;
   }
+  
+
+  // handleSpecialCharacters(text: string): string {
+  //   return text
+  //     .replace(/â€¢/g, "•")
+  //     .replace(/â€”/g, "—")
+  //     .replace(/â€“/g, "–")
+  //     .replace(/â€œ/g, "“")
+  //     .replace(/â€˜/g, "‘")
+  //     .replace(/â€™/g, "’")
+  //     .replace(/â€/g, "”")
+  //     .replace(/â€¦/g, "…")
+  //     .replace(/Â°/g, "°")
+  //     .replace(/â€“/g, "–")
+  //     .replace(/â‚¬/g, "€")
+  //     .replace(/\*/g, "'")
+  //     .replace(/ï¿½/g, "'");
+  // }
+  
+  // // Utility to handle line breaks and formatting
+  // handleTextFormatting(text: string): string {
+  //   return text
+  //     .replace(/(\w+)-\s*\n\s*(\w+)/g, '$1$2') // Merge hyphenated words
+  //     .replace(/(?<!\n)\n(?!\n)/g, ' ') // Keep single newlines as single newline
+  //     .replace(/\n\n/g, '\n') // Replace double newlines with single newline
+  //     .replace(/'/g, "\\'"); // Escape single quotes
+  // }
+
+  resetSavedImage(isSaved: boolean = false) {
+    // console.log('resetSavedImage');
+    try {
+      this.isPreviewImage = false;
+
+      if (this.cropper) {
+        // console.log("Destroying cropper before closing modal.");
+        this.cropper.destroy();
+        this.cropper = null;
+      }
+
+      this.isCropEnabled = false;
+      this.croppedImage = '';
+      this.isPreviewMode = false;
+    } catch (error) {
+      console.error('Error resetting saved image:', error);
+    }
+  }
+
+  dataURLToBlob(dataURL: string): Blob {
+    const byteString = atob(dataURL.split(',')[1]);
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    const buffer = new ArrayBuffer(byteString.length);
+    const dataView = new Uint8Array(buffer);
+    for (let i = 0; i < byteString.length; i++) {
+      dataView[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([buffer], { type: mimeString });
+  }
+
+  resetCropper(isSaved: boolean = false) {
+    this.isLoading = true
+    this.isModalLoading = true
+    // console.log('resetCropper');
+    try {
+      this.destroy$.next();
+      this.isPreviewImage = false;
+
+      if (this.cropper) {
+        // console.log("Destroying cropper before closing modal.");
+        this.cropper.destroy();
+        this.cropper = null;
+      }
+
+      this.isCropEnabled = false;
+      this.croppedImage = '';
+      this.isPreviewMode = false;
+      this.isSaveImage = false;
+      this.isUploadedImage = false;
+      // this.imageSrc = '';
+      
+      if (!isSaved) {
+        this.imageSrc = `https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`;
+
+    }
+
+    } catch (error) {
+      console.error('Error resetting cropper:', error);
+    } finally {
+      this.isLoading = false;
+      this.isModalLoading = false;
+    }
+  }
+
+  zoomIn() {
+    this.isModalLoading = true;
+    try {
+      if (this.cropper) {
+        this.cropper.zoom(0.1);
+        this.isZoomEnabled = true;
+      }
+    } catch (error) {
+      console.error('Error zooming in:', error);
+      alert('An error occurred while zooming in.');
+    } finally {
+      this.isModalLoading = false;
+    }
+  }
+
+  zoomOut() {
+    this.isModalLoading = true;
+    try {
+      if (this.cropper) {
+        this.cropper.zoom(-0.1);
+        const data = this.cropper.getData();
+        if (data.scaleX <= 1 && data.scaleY <= 1) {
+          this.isZoomEnabled = false;
+        }
+      }
+    } catch (error) {
+      console.error('Error zooming out:', error);
+      alert('An error occurred while zooming out.');
+    } finally {
+      this.isModalLoading = false;
+    }
+  }
+
+  getTransformStyle() {
+    return this.cropper ? {} : { transform: `scale(${this.zoomLevel})` };
+  }
+
+  // viewArticle() {
+  //   this.isModalLoading=true
+  //   if (this.page_Number.length > 0) {
+  //     const imagedirectory = this.article.imageDirectory || this.page_Number[0].imageDirectory;
+  //     const Image_name = this.article.Image_Name || this.page_Number[0].Image_Name;
+  //     const baseUrl = 'https://myimpact.in/backup';
+  //     const url = `${baseUrl}/${imagedirectory}/${Image_name}`;
+  //     this.imageSrc = "https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg";
+  //     console.log(this.imageSrc);
+  //     this.ngZone.run(() => { // Force UI update
+  //       // this.cdr.detectChanges();
+  //       this.imageSrc = `https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`;
+
+  //       this.isUploadedImage = false;
+  //       this.isModalLoading=false;
+  //     });
+  //     // this.cdr.detectChanges();
+  //     // this.isUploadedImage = false;
+  //   } else {
+  //     console.error('No page number data available');
+  //   }
+  // }
+
+  viewArticle() {
+    this.isModalLoading = true; // Show the loader
+    console.log("View article");
+    
+    if (this.page_Number.length > 0) {
+      const imagedirectory =
+        this.article.imageDirectory || this.page_Number[0].imageDirectory;
+      const Image_name =
+        this.article.Image_Name || this.page_Number[0].Image_Name;
+      const baseUrl = 'https://myimpact.in/backup';
+          // const url = `${baseUrl}/${imagedirectory}/${Image_name}`;
+
+      // if (`https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`) {
+
+      // } else {
+
+      // }
+      const url = `https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`;
+      // console.log("url: " + url);
+      
+      // this.imageSrc = ''; // Clear previous image to force reloading
+
+      const img = new Image(); // Create a new image object
+      img.src = url;
+
+      img.onload = () => {
+        this.ngZone.run(() => {
+          // console.log("working fine...");
+          this.imageSrc = url; // Set image when it's fully loaded
+          this.isUploadedImage = false;
+          this.isSaveImage = false;
+          this.isModalLoading = false; // Hide loader
+          this.cdr.detectChanges(); // Force UI update
+        });
+      };
+
+      img.onerror = () => {
+        this.ngZone.run(() => {
+          console.error('Image failed to load.');
+          this.isModalLoading = false; // Hide loader even if image fails
+          this.cdr.detectChanges();
+        });
+      };
+    } else {
+      console.error('No page number data available');
+      this.isModalLoading = false; // Hide loader
+    }
+  }
+
+  sendMail() {
+    const to = ''; // Hardcoded email for testing
+    const subject = `${this.selectedPublication.PublicationTitle} - ${
+      this.selectedPublication.Edition
+    } ${this.formatDateForMail(this.selectedDate)}`;
+
+    // Extract keyword values and join them with long dashes
+    const additionalKeywordsText =
+      this.additionalKeyowrds.length > 0
+        ? this.additionalKeyowrds.map((k) => k.keyword).join(' ,')
+        : 'None';
+
+    let body = `${this.selectedPublication.PublicationTitle} – ${
+      this.selectedPublication.Edition
+    } – ${this.formatDateForMail(this.selectedDate)}\n\n`;
+    body += `${this.article.ArticleTitle}\n\n`;
+    body += `Add keywords: \n\n`;
+    body += `Remove keyword:`;
+
+    // Encode email components
+    const mailtoLink = `mailto:${to}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    // Open email client
+    window.location.href = mailtoLink;
+  }
+
+
+cancelCropping() {
+  this.isLoading = true
+  this.isModalLoading = true
+  this.isCropEnabled = false; // Disable cropping mode
+  this.resetCropper(); // Reset the cropping process
+  this.isLoading = false
+  this.isModalLoading= false
 }
 
-getTransformStyle() {
-  return this.cropper ? {} : { transform: `scale(${this.zoomLevel})` };
-}
+// zoom(event: WheelEvent) {
+//   event.preventDefault();
+//   const zoomFactor = event.deltaY < 0 ? 0.1 : -0.1;
 
-// viewArticle() {
-//   this.isModalLoading=true
-//   if (this.page_Number.length > 0) {
-//     const imagedirectory = this.article.imageDirectory || this.page_Number[0].imageDirectory;
-//     const Image_name = this.article.Image_Name || this.page_Number[0].Image_Name;
-//     const baseUrl = 'https://myimpact.in/backup';
-//     const url = `${baseUrl}/${imagedirectory}/${Image_name}`;
-//     this.imageSrc = "https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg";
-//     console.log(this.imageSrc);
-//     this.ngZone.run(() => { // Force UI update
-//       // this.cdr.detectChanges();
-//       this.imageSrc = `https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`;
+//   if (this.cropper) {
+//     const imageData = this.cropper.getImageData();
+//     const cropBoxData = this.cropper.getCropBoxData();
+//     const canvasData = this.cropper.getCanvasData();
+//     const currentZoom = imageData.scaleX;
 
-//       this.isUploadedImage = false;
-//       this.isModalLoading=false;
-//     });
-//     // this.cdr.detectChanges();
-//     // this.isUploadedImage = false;
-//   } else {
-//     console.error('No page number data available');
+//     // Set a max/min zoom limit
+//     if ((currentZoom > 0.5 || zoomFactor > 0) && (currentZoom < 3 || zoomFactor < 0)) {
+//       this.cropper.zoom(zoomFactor);
+
+//       // Get new image and crop box data after zooming
+//       const newImageData = this.cropper.getImageData();
+//       const newCropBoxData = this.cropper.getCropBoxData();
+
+//       // Ensure crop box stays inside the image
+//       const adjustedLeft = Math.max(newCropBoxData.left, newImageData.left);
+//       const adjustedTop = Math.max(newCropBoxData.top, newImageData.top);
+//       const adjustedWidth = Math.min(newCropBoxData.width, newImageData.width);
+//       const adjustedHeight = Math.min(newCropBoxData.height, newImageData.height);
+
+//       this.cropper.setCropBoxData({
+//         left: adjustedLeft,
+//         top: adjustedTop,
+//         width: adjustedWidth,
+//         height: adjustedHeight
+//       });
+
+//       // Ensure canvas stays within bounds
+//       this.cropper.setCanvasData({
+//         left: Math.max(canvasData.left, 0),
+//         top: Math.max(canvasData.top, 0),
+//         width: canvasData.width,
+//         height: canvasData.height,
+//       });
+//     }
 //   }
 // }
 
-viewArticle() {
-  this.isModalLoading = true; // Show the loader
+zoom(event: WheelEvent) {
+  event.preventDefault();
+  const zoomFactor = event.deltaY < 0 ? 0.1 : -0.1;
 
-  if (this.page_Number.length > 0) {
-    const imagedirectory = this.article.imageDirectory || this.page_Number[0].imageDirectory;
-    const Image_name = this.article.Image_Name || this.page_Number[0].Image_Name;
-    const baseUrl = 'https://myimpact.in/backup';
-    //     const url = `${baseUrl}/${imagedirectory}/${Image_name}`;
+  if (this.cropper) {
+    const imageDataBeforeZoom = this.cropper.getImageData();
+    const cropBoxDataBeforeZoom = this.cropper.getCropBoxData();
 
-    const url = `https://myimpact.in/irisprocess/testingimageupdate/images/123-20250125-21-Economy_8.jpg?timestamp=${Date.now()}`;
+    // Apply zoom
+    this.cropper.zoom(zoomFactor);
 
-    this.imageSrc = ""; // Clear previous image to force reloading
+    // Get updated image data after zoom
+    const imageDataAfterZoom = this.cropper.getImageData();
 
-    const img = new Image(); // Create a new image object
-    img.src = url;
+    // Scale the crop box proportionally to maintain its position within the image
+    const scaleX = imageDataAfterZoom.width / imageDataBeforeZoom.width;
+    const scaleY = imageDataAfterZoom.height / imageDataBeforeZoom.height;
 
-    img.onload = () => {
-      this.ngZone.run(() => {
-        this.imageSrc = url; // Set image when it's fully loaded
-        this.isUploadedImage = false;
-        this.isSaveImage= false;
-        this.isModalLoading = false; // Hide loader
-        this.cdr.detectChanges(); // Force UI update
-      });
-    };
+    const newWidth = Math.min(cropBoxDataBeforeZoom.width * scaleX, imageDataAfterZoom.width);
+    const newHeight = Math.min(cropBoxDataBeforeZoom.height * scaleY, imageDataAfterZoom.height);
 
-    img.onerror = () => {
-      this.ngZone.run(() => {
-        console.error("Image failed to load.");
-        this.isModalLoading = false; // Hide loader even if image fails
-        this.cdr.detectChanges();
-      });
-    };
-  } else {
-    console.error("No page number data available");
-    this.isModalLoading = false; // Hide loader
+    const newLeft = Math.max(
+      imageDataAfterZoom.left,
+      Math.min(cropBoxDataBeforeZoom.left * scaleX, imageDataAfterZoom.left + imageDataAfterZoom.width - newWidth)
+    );
+    const newTop = Math.max(
+      imageDataAfterZoom.top,
+      Math.min(cropBoxDataBeforeZoom.top * scaleY, imageDataAfterZoom.top + imageDataAfterZoom.height - newHeight)
+    );
+
+    // Apply the adjusted crop box to ensure it stays within bounds
+    this.cropper.setCropBoxData({
+      left: newLeft,
+      top: newTop,
+      width: newWidth,
+      height: newHeight
+    });
   }
 }
 
-
-sendMail() {
-  // const to = "rkaur@impactmeasurement.co.in"; // Hardcoded email for testing
-  // const subject = "Test Email Subject";
-  // const body = `Hello,\n\nThis is a test email.\n\nUser ID: ${this.UserID}`;
-
-  // // Encode email components
-  // const mailtoLink = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  // // Open email client
-  // window.location.href = mailtoLink;
-}
 
 }
